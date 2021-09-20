@@ -1,3 +1,13 @@
+// global.fetch = require('node-fetch')
+import fetch from 'node-fetch'
+
+if (!globalThis.fetch) {
+  globalThis.fetch = fetch
+}
+
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+
 const GeminiAPI = require('gemini-api').default
 require('dotenv').config()
 const CryptoCompareAPI = require('cryptocompare')
@@ -31,9 +41,16 @@ const restClient = new GeminiAPI({ key, secret, sandbox: true })
 //   })
 //   .catch((error) => console.log('cancel all err', error))
 
-restClient
-  .getMyActiveOrders()
-  .then((orders) => {
-    console.log('my activer orders', orders)
+// restClient
+//   .getMyActiveOrders()
+//   .then((orders) => {
+//     console.log('my activer orders', orders)
+//   })
+//   .catch((error) => console.log('active order err', error))
+
+CryptoCompareAPI.priceHistorical('BTC', ['USD', 'EUR'], new Date('2017-01-01'))
+  .then((prices) => {
+    console.log(prices)
+    // -> { BTC: { USD: 997, EUR: 948.17 } }
   })
-  .catch((error) => console.log('active order err', error))
+  .catch(console.error)
