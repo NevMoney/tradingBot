@@ -10,47 +10,27 @@ const require = createRequire(import.meta.url)
 
 const GeminiAPI = require('gemini-api').default
 require('dotenv').config()
-const CryptoCompareAPI = require('cryptocompare')
-CryptoCompareAPI.setApiKey(process.env.CRYPTO_COMPARE_API_KEY)
+const CC = require('cryptocompare')
+CC.setApiKey(process.env.CRYPTO_COMPARE_API_KEY)
 
 const secret = process.env.GEMINI_API_SECRET
 const key = process.env.GEMINI_API_KEY
-const restClient = new GeminiAPI({ key, secret, sandbox: true })
+const gemini = new GeminiAPI({ key, secret, sandbox: true })
 
-// check balances
-// restClient
-//   .getMyAvailableBalances()
-//   .then((response) => console.log('balances', response))
-//   .catch((error) => console.log('balance err', error))
-
-// put orders in
-// restClient
-//   .newOrder({
-//     amount: 5,
-//     price: 250,
-//     side: 'buy',
-//     symbol: 'ethusd',
-//   })
-//   .then((resolve) => console.log('eth buy', resolve))
-//   .catch((error) => console.log('eth buy err', error))
-
-// restClient
-//   .cancelAllActiveOrders()
-//   .then((resolve) => {
-//     console.log('cancel all', resolve)
-//   })
-//   .catch((error) => console.log('cancel all err', error))
-
-// restClient
-//   .getMyActiveOrders()
-//   .then((orders) => {
-//     console.log('my activer orders', orders)
-//   })
-//   .catch((error) => console.log('active order err', error))
-
-CryptoCompareAPI.priceHistorical('BTC', ['USD', 'EUR'], new Date('2017-01-01'))
-  .then((prices) => {
-    console.log(prices)
-    // -> { BTC: { USD: 997, EUR: 948.17 } }
+// 100 hour Moving Average - hardcoded
+// #1 get data from cc --> default is 169 hours
+CC.histoHour('BTC', 'USD')
+  .then((data) => {
+    // need to reverse the data
+    const reversedData = data.reverse()
+    var sum = 0
+    for (var i = 0; i < 100; i++) {
+      sum += reversedData[i].close
+    }
+    // #2 calculate MA for past 100 hours
+    const avg = sum / 100
+    console.log(avg)
   })
   .catch(console.error)
+
+// #3 check continuously if price is crosing 100 MA -> buy/sell/hold
