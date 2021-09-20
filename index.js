@@ -18,19 +18,26 @@ const key = process.env.GEMINI_API_KEY
 const gemini = new GeminiAPI({ key, secret, sandbox: true })
 
 // 100 hour Moving Average - hardcoded
-// #1 get data from cc --> default is 169 hours
-CC.histoHour('BTC', 'USD')
-  .then((data) => {
-    // need to reverse the data
-    const reversedData = data.reverse()
-    var sum = 0
-    for (var i = 0; i < 100; i++) {
-      sum += reversedData[i].close
-    }
-    // #2 calculate MA for past 100 hours
-    const avg = sum / 100
-    console.log(avg)
-  })
-  .catch(console.error)
+function movingAverage(crypto, fiat, hours, callback) {
+  if (hours > 169) {
+    alert('Please enter a number less than 169')
+    return
+  }
+  CC.histoHour(crypto, fiat)
+    .then((data) => {
+      // need to reverse the data
+      const reversedData = data.reverse()
+      var sum = 0
+      for (var i = 0; i < hours; i++) {
+        sum += reversedData[i].close
+      }
+      // #2 calculate MA for past 100 hours
+      const avg = sum / hours
+      callback(avg)
+    })
+    .catch(console.error)
+}
 
-// #3 check continuously if price is crosing 100 MA -> buy/sell/hold
+movingAverage('ETH', 'USD', 50, function (result) {
+  console.log('MA: ', result)
+})
