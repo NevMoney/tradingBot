@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cryptocompare": "^1.0.0",
     "dotenv": "^10.0.0",
     "gemini-api": "^2.0.4"
   }
