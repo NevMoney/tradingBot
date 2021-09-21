@@ -15,6 +15,8 @@ var btcStrategy = async function () {
   let price = btcPriceData.last
   let volume = btcPriceData.volume.USD
   let buyPrice = Math.floor(price * 1.5)
+  let sellPrice = Math.floor(price * 0.05) // basically the price can drop 95% from current before this can't be executed
+  console.log(sellPrice)
 
   let balance = await exchange.getCurrencyBalance('USD')
   // we'll only purchase 1% of our portfolio balance and then calculate the amount of BTC we need to purchase
@@ -31,16 +33,32 @@ var btcStrategy = async function () {
       console.log('Has Position: ', hasPosition)
 
       if (price < ma && !hasPosition) {
+        console.log('Buying...')
         exchange
           .marketBuyBitcoin(amountToBuy, buyPrice)
           .then((res) => {
             console.log('Purchased BTC', res)
             hasPosition = true
+
+            setTimeout(btcStrategy, 5000)
           })
           .catch((err) => console.error(err))
-      }
+      } else if (price > ma && hasPosition) {
+        console.log('Selling...')
+        exchange
+          .marketSellBitcoin(amountToSell, sellPrice)
+          .then((res) => {
+            console.log('Sold BTC', res)
+            hasPosition = false
 
-      setTimeout(btcStrategy, 5000)
+            setTimeout(btcStrategy, 5000)
+          })
+          .catch((err) => console.error(err))
+      } else {
+        console.log('No Action')
+
+        setTimeout(btcStrategy, 5000)
+      }
     } catch (error) {
       console.log(error)
     }
