@@ -22,8 +22,10 @@ const hourlyMovingAverage = (crypto, fiat, hours, callback) => {
       for (var i = 0; i < hours; i++) {
         sum += reversedData[i].close
       }
-      // #2 calculate MA for past 100 hours
-      const avg = sum / hours
+      // to get round number without decimals
+      const avg = Math.floor(sum / hours)
+      // to get decimals
+      //   const avg = sum / hours
       callback(avg)
     })
     .catch(console.error)
